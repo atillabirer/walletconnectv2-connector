@@ -4,9 +4,9 @@ import UniversalProvider from "@walletconnect/universal-provider";
 import SignClient from "@walletconnect/sign-client";
 import { providers } from "ethers";
 export declare class WalletConnectConnector extends AbstractConnector {
-    provider: UniversalProvider | undefined;
-    web3Provider: providers.Web3Provider | undefined;
-    signClient: SignClient | undefined;
+    provider?: UniversalProvider;
+    web3Provider?: providers.Web3Provider;
+    signClient?: SignClient;
     constructor();
     activate(): Promise<ConnectorUpdate>;
     getProvider(): Promise<any>;
