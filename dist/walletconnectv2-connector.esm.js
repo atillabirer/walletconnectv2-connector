@@ -1,5 +1,7 @@
 import { AbstractConnector } from '@web3-react/abstract-connector';
-import { EthereumProvider } from '@walletconnect/ethereum-provider';
+import UniversalProvider from '@walletconnect/universal-provider';
+import { providers } from 'ethers';
+import { Web3Modal } from '@web3modal/standalone';
 
 function _regeneratorRuntime() {
   _regeneratorRuntime = function () {
@@ -345,6 +347,7 @@ function _setPrototypeOf(o, p) {
   return _setPrototypeOf(o, p);
 }
 
+var projectId = "ad2993f3d628ec73d7307035cb36c4f0";
 var WalletConnectConnector = /*#__PURE__*/function (_AbstractConnector) {
   _inheritsLoose(WalletConnectConnector, _AbstractConnector);
   function WalletConnectConnector() {
@@ -354,43 +357,109 @@ var WalletConnectConnector = /*#__PURE__*/function (_AbstractConnector) {
   }
   var _proto = WalletConnectConnector.prototype;
   _proto.activate = /*#__PURE__*/function () {
-    var _activate = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
-      var result;
-      return _regeneratorRuntime().wrap(function _callee$(_context) {
-        while (1) switch (_context.prev = _context.next) {
+    var _activate = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
+      var web3Modal, provider, result;
+      return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+        while (1) switch (_context2.prev = _context2.next) {
           case 0:
-            _context.next = 2;
-            return EthereumProvider.init({
+            web3Modal = new Web3Modal({
+              projectId: projectId,
+              defaultChain: [1284],
+              walletConnectVersion: 2,
+              desktopWallets: [{
+                id: "metamask",
+                name: "MetaMask",
+                links: {
+                  "native": "metamask://",
+                  universal: ""
+                }
+              }]
+            });
+            _context2.next = 3;
+            return UniversalProvider.init({
               projectId: "ad2993f3d628ec73d7307035cb36c4f0",
-              chains: [1284],
-              optionalChains: [1284],
-              showQrModal: true,
-              rpcMap: {
-                1284: "https://rpc.api.moonbeam.network"
-              },
-              events: ["chainChanged", "accountsChanged"],
-              methods: ["eth_sendTransaction", "eth_signTransaction", "eth_sign", "personal_sign", "eth_signTypedData"]
+              relayUrl: "wss://relay.walletconnect.com"
             });
-          case 2:
-            this.provider = _context.sent;
-            _context.next = 5;
-            return this.provider.connect();
-          case 5:
-            _context.next = 7;
-            return this.provider.request({
-              method: 'eth_requestAccounts'
+          case 3:
+            provider = _context2.sent;
+            provider.on("display_uri", /*#__PURE__*/function () {
+              var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(uri) {
+                return _regeneratorRuntime().wrap(function _callee$(_context) {
+                  while (1) switch (_context.prev = _context.next) {
+                    case 0:
+                      console.log("EVENT", "QR Code Modal open");
+                      web3Modal == null ? void 0 : web3Modal.openModal({
+                        uri: uri
+                      });
+                    case 2:
+                    case "end":
+                      return _context.stop();
+                  }
+                }, _callee);
+              }));
+              return function (_x) {
+                return _ref.apply(this, arguments);
+              };
+            }());
+            // Subscribe to session ping
+            provider.on("session_ping", function (_ref2) {
+              var id = _ref2.id,
+                topic = _ref2.topic;
+              console.log("EVENT", "session_ping");
+              console.log(id, topic);
             });
-          case 7:
-            result = _context.sent;
-            return _context.abrupt("return", {
-              provider: this.provider,
+            // Subscribe to session event
+            provider.on("session_event", function (_ref3) {
+              var event = _ref3.event,
+                chainId = _ref3.chainId;
+              console.log("EVENT", "session_event");
+              console.log(event, chainId);
+            });
+            // Subscribe to session update
+            provider.on("session_update", function (_ref4) {
+              var topic = _ref4.topic,
+                session = _ref4.session;
+              console.log("EVENT", "session_updated");
+              console.log(topic, session);
+              //setSession(session);
+            });
+            // Subscribe to session delete
+            provider.on("session_delete", function (_ref5) {
+              var id = _ref5.id,
+                topic = _ref5.topic;
+              console.log("EVENT", "session_deleted");
+              console.log(id, topic);
+            });
+            this.provider = provider;
+            this.signClient = provider.client;
+            _context2.next = 13;
+            return provider.connect({
+              namespaces: {
+                eip155: {
+                  methods: ["eth_sendTransaction", "eth_signTransaction", "eth_sign", "personal_sign", "eth_signTypedData"],
+                  chains: ["eip155:1284"],
+                  events: ["chainChanged", "accountsChanged"],
+                  rpcMap: {
+                    1284: "https://rpc.api.moonbeam.network"
+                  }
+                }
+              }
+            });
+          case 13:
+            this.web3Provider = new providers.Web3Provider(provider);
+            _context2.next = 16;
+            return provider.enable();
+          case 16:
+            result = _context2.sent;
+            return _context2.abrupt("return", {
+              provider: provider,
               account: result[0]
             });
-          case 9:
+          case 18:
           case "end":
-            return _context.stop();
+            return _context2.stop();
         }
-      }, _callee, this);
+      }, _callee2, this);
     }));
     function activate() {
       return _activate.apply(this, arguments);
@@ -398,16 +467,16 @@ var WalletConnectConnector = /*#__PURE__*/function (_AbstractConnector) {
     return activate;
   }();
   _proto.getProvider = /*#__PURE__*/function () {
-    var _getProvider = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
-      return _regeneratorRuntime().wrap(function _callee2$(_context2) {
-        while (1) switch (_context2.prev = _context2.next) {
+    var _getProvider = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
+      return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+        while (1) switch (_context3.prev = _context3.next) {
           case 0:
-            return _context2.abrupt("return", this.provider);
+            return _context3.abrupt("return", this.web3Provider);
           case 1:
           case "end":
-            return _context2.stop();
+            return _context3.stop();
         }
-      }, _callee2, this);
+      }, _callee3, this);
     }));
     function getProvider() {
       return _getProvider.apply(this, arguments);
@@ -415,16 +484,16 @@ var WalletConnectConnector = /*#__PURE__*/function (_AbstractConnector) {
     return getProvider;
   }();
   _proto.getChainId = /*#__PURE__*/function () {
-    var _getChainId = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
-      return _regeneratorRuntime().wrap(function _callee3$(_context3) {
-        while (1) switch (_context3.prev = _context3.next) {
+    var _getChainId = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
+      return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+        while (1) switch (_context4.prev = _context4.next) {
           case 0:
-            return _context3.abrupt("return", this.provider.chainId);
+            return _context4.abrupt("return", 1284);
           case 1:
           case "end":
-            return _context3.stop();
+            return _context4.stop();
         }
-      }, _callee3, this);
+      }, _callee4);
     }));
     function getChainId() {
       return _getChainId.apply(this, arguments);
@@ -432,23 +501,22 @@ var WalletConnectConnector = /*#__PURE__*/function (_AbstractConnector) {
     return getChainId;
   }();
   _proto.getAccount = /*#__PURE__*/function () {
-    var _getAccount = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
-      var accounts;
-      return _regeneratorRuntime().wrap(function _callee4$(_context4) {
-        while (1) switch (_context4.prev = _context4.next) {
+    var _getAccount = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
+      var _this$web3Provider;
+      var accs;
+      return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+        while (1) switch (_context5.prev = _context5.next) {
           case 0:
-            _context4.next = 2;
-            return this.provider.request({
-              method: 'eth_requestAccounts'
-            });
+            _context5.next = 2;
+            return (_this$web3Provider = this.web3Provider) == null ? void 0 : _this$web3Provider.listAccounts();
           case 2:
-            accounts = _context4.sent;
-            return _context4.abrupt("return", accounts[0]);
+            accs = _context5.sent;
+            return _context5.abrupt("return", accs[0]);
           case 4:
           case "end":
-            return _context4.stop();
+            return _context5.stop();
         }
-      }, _callee4, this);
+      }, _callee5, this);
     }));
     function getAccount() {
       return _getAccount.apply(this, arguments);
@@ -456,19 +524,40 @@ var WalletConnectConnector = /*#__PURE__*/function (_AbstractConnector) {
     return getAccount;
   }();
   _proto.deactivate = /*#__PURE__*/function () {
-    var _deactivate = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
-      return _regeneratorRuntime().wrap(function _callee5$(_context5) {
-        while (1) switch (_context5.prev = _context5.next) {
+    var _deactivate = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6() {
+      var _this$provider;
+      return _regeneratorRuntime().wrap(function _callee6$(_context6) {
+        while (1) switch (_context6.prev = _context6.next) {
           case 0:
+            console.log("deactivate called");
+            (_this$provider = this.provider) == null ? void 0 : _this$provider.disconnect();
+          case 2:
           case "end":
-            return _context5.stop();
+            return _context6.stop();
         }
-      }, _callee5);
+      }, _callee6, this);
     }));
     function deactivate() {
       return _deactivate.apply(this, arguments);
     }
     return deactivate;
+  }();
+  _proto.close = /*#__PURE__*/function () {
+    var _close = /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee7() {
+      return _regeneratorRuntime().wrap(function _callee7$(_context7) {
+        while (1) switch (_context7.prev = _context7.next) {
+          case 0:
+            this.emitDeactivate();
+          case 1:
+          case "end":
+            return _context7.stop();
+        }
+      }, _callee7, this);
+    }));
+    function close() {
+      return _close.apply(this, arguments);
+    }
+    return close;
   }();
   return WalletConnectConnector;
 }(AbstractConnector);
