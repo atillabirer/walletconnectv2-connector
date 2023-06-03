@@ -530,8 +530,9 @@ var WalletConnectConnector = /*#__PURE__*/function (_AbstractConnector) {
         while (1) switch (_context6.prev = _context6.next) {
           case 0:
             console.log("deactivate called");
-            (_this$provider = this.provider) == null ? void 0 : _this$provider.disconnect();
-          case 2:
+            _context6.next = 3;
+            return (_this$provider = this.provider) == null ? void 0 : _this$provider.disconnect();
+          case 3:
           case "end":
             return _context6.stop();
         }

@@ -141,7 +141,7 @@ export class WalletConnectConnector extends AbstractConnector {
 
   public async deactivate() {
     console.log("deactivate called")
-    this.provider?.disconnect();
+    await this.provider?.disconnect();
 
 
   }

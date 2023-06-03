@@ -8170,6 +8170,17 @@ walker@^1.0.7, walker@~1.0.5:
   dependencies:
     makeerror "1.0.12"
 
+walletconnectv2-connector@atillabirer/walletconnectv2-connector:
+  version "0.1.0"
+  resolved "https://codeload.github.com/atillabirer/walletconnectv2-connector/tar.gz/b72c90fe8f2946b58436764239467f362396404a"
+  dependencies:
+    "@walletconnect/ethereum-provider" "^2.7.4"
+    "@web3modal/standalone" "^2.4.1"
+    bufferutil "^4.0.7"
+    pino-pretty "^10.0.0"
+    real-require "0.2.0"
+    utf-8-validate "^6.0.3"
+
 wcwidth@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/wcwidth/-/wcwidth-1.0.1.tgz#f0b0dcf915bc5ff1528afadb2c0e17b532da2fe8"
